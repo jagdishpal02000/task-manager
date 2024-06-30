@@ -34,6 +34,7 @@ const TodoList = () => {
     };
 
     fetchTodos();
+    // eslint-disable-next-line
   },[]);
 
   return (
