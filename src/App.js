@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Signup from './components/Auth/Signup';
+import Login from './components/Auth/Login';
+import TodoList from './components/Todo/TodoList';
+import AddTodo from './components/Todo/AddTodo';
+import { AuthContext } from './context/AuthContext';
+import styled from 'styled-components';
 
-function App() {
+const AppContainer = styled.div`
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+`;
+
+const App = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AppContainer>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        {isAuthenticated && (
+          <>
+            <Route path="/todos" element={<TodoList />} />
+            <Route path="/add-todo" element={<AddTodo />} />
+          </>
+        )}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </AppContainer>
   );
-}
+};
 
 export default App;
