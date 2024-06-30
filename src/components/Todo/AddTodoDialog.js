@@ -35,10 +35,10 @@ const AddTodoDialog = ({ open, onClose }) => {
     <>
     
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Create Todo</DialogTitle>
+      <DialogTitle>Create Task</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Enter details for the new todo item.
+          Enter details for the new task item.
         </DialogContentText>
         <TextField
           autoFocus

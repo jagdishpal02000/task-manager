@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import moment from 'moment';
 import { TodoContext } from '../../context/TodoContext';
 import useCallAPI from '../../hooks/useCallAPI';
 import {
@@ -38,7 +39,7 @@ const TodoList = () => {
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState(null);
   const [sortBy, setSortBy] = useState('asc');
   const [isFiltering, setIsFiltering] = useState(false);
-  const [statusFilterType, setStatusFilterType] =useState('incompleted');
+  const [statusFilterType, setStatusFilterType] =useState('all');
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -54,11 +55,13 @@ const TodoList = () => {
   const handleClickOpen = (todo) => {
     setSelectedTodo(todo);
     setOpen(true);
+    console.log();
   };
 
   const handleClose = () => {
     setOpen(false);
     setSelectedTodo(null);
+
   };
 
   const handleEditChange = (e) => {
@@ -90,34 +93,35 @@ const TodoList = () => {
 
   const handleSort = async (type) => {
     if(!isFiltering){
-      let response;
       setIsFiltering(true);
 
-      switch (type) {
-        case 'due_date':
-        case 'created_datetime':
-          response = await callAuthAPI({ url: `/task?sort_by=${type}&sortBy=${sortBy}`, method: 'GET' });
-          setSortBy(sortBy === 'asc' ? 'desc' : 'asc');
-          break;
-        case 'status':
-          response = await callAuthAPI({ url: `/task?status=${statusFilterType}`, method: 'GET' });
-          setStatusFilterType(statusFilterType === 'incompleted' ? 'completed' : 'incompleted');
-          break;
+      const response = await callAuthAPI({ url: `/task?sort_by=${type}&sort_type=${sortBy}`, method: 'GET' });
+      setSortBy(sortBy === 'asc' ? 'desc' : 'asc');
       
-        default:
-          break;
-     
-        }
-        setTodos(response.data?.tasks);
-     
-        setIsFiltering(false);
+      setTodos(response.data?.tasks);
+    
+      setIsFiltering(false);
   }
+  };
+
+  const handleStatusFilter = async (e) => {
+    const { value } = e.target;
+    let placeholder ;
+    if(!isFiltering){
+      if(value !== "all"){
+        placeholder = 'status='+value;
+      } 
+      const  response = await callAuthAPI({ url: `/task?${placeholder}`, method: 'GET' });
+      setTodos(response.data?.tasks);
+      setIsFiltering(false);
+      setStatusFilterType(value);
+    }
   };
 
   return (
     <Container  maxWidth="xl"  sx={{ width:'100%',marginTop: '80px' }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Todo List
+        Tasks List
       </Typography>
       <Button
         variant="contained"
@@ -126,7 +130,7 @@ const TodoList = () => {
         
         sx={{ marginBottom: '20px' }}
       >
-        Add Todo
+        Add Task
       </Button>
       <TableContainer component={Paper} sx={{ minWidth: 850 }}  >
         <Table >
@@ -135,11 +139,23 @@ const TodoList = () => {
               <TableCell>S.N.</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Description</TableCell>
-              <TableCell>Status
-
-            <IconButton onClick={()=>handleSort('status')} aria-label="sort" size="small">
-            <AlignVerticalTopIcon fontSize="inherit" />
-          </IconButton>
+              <TableCell>
+                Status
+              <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
+              <Select
+                  value={statusFilterType}
+                  onChange={handleStatusFilter}
+                  label="Status"
+                  name="status"
+                >
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                  <MenuItem value="incompleted">Incomplete</MenuItem>
+                </Select>
+            </FormControl>
+            {/* <IconButton onClick={()=>handleSort('status')} aria-label="sort" size="small"> */}
+            {/* <AlignVerticalTopIcon fontSize="inherit" /> */}
+          {/* </IconButton> */}
 
               </TableCell>
               <TableCell>Due Date 
@@ -165,9 +181,9 @@ const TodoList = () => {
                 <TableCell>{todo.status}</TableCell>
 
                 <TableCell>
-                  {new Date(todo.due_date).toLocaleDateString()}
+                {moment(new Date(todo.due_date)).format('MMMM Do YYYY')}
                 </TableCell>
-                <TableCell>{new Date(todo.created_datetime).toLocaleString()}</TableCell>
+                <TableCell>{moment(new Date(todo.created_datetime)).format('MMMM Do YYYY, h:mm:ss a')}</TableCell>
                 <TableCell>
                   <Button
                     variant="outlined"
@@ -191,9 +207,8 @@ const TodoList = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit Todo</DialogTitle>
+        <DialogTitle>Edit Task</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Make changes to the todo item and save.
@@ -228,7 +243,7 @@ const TodoList = () => {
                 type="date"
                 fullWidth
                 variant="outlined"
-                value={selectedTodo.due_date}
+                value={moment(new Date(selectedTodo.due_date)).format('YYYY-MM-DD')}
                 onChange={handleEditChange}
                 InputLabelProps={{
                   shrink: true,

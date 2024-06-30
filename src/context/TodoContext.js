@@ -18,7 +18,7 @@ export const TodoProvider = ({ children }) => {
         data:todo,
       });
       console.log(response.data.task)
-      setTodos([...todos,todo]);
+      setTodos([...todos,response.data.task]);
 
     } catch (error) {
       alert('Something went wrong');
