@@ -18,9 +18,16 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import AddTodoDialog from './AddTodoDialog';
 import CustomAlert from '../Layout/CustomAlert';
+
+import IconButton from '@mui/material/IconButton';
+import AlignVerticalTopIcon from '@mui/icons-material/AlignVerticalTop';
 
 const TodoList = () => {
   const { todos, setTodos,updateTodo,deleteTodo } = useContext(TodoContext);
@@ -29,6 +36,9 @@ const TodoList = () => {
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [openCreate, setOpenCreate] = useState(false);
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState(null);
+  const [sortBy, setSortBy] = useState('asc');
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [statusFilterType, setStatusFilterType] =useState('incompleted');
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -68,7 +78,6 @@ const TodoList = () => {
   };
 
   const handleSave = async () => {
-    
     updateTodo(selectedTodo.id,selectedTodo)
       handleClose();
   };
@@ -76,6 +85,33 @@ const TodoList = () => {
   const handleDelete = async (todo) => {
     deleteTodo(todo);
     setDeleteSuccessMessage('Task Deleted Successfully');
+  };
+
+
+  const handleSort = async (type) => {
+    if(!isFiltering){
+      let response;
+      setIsFiltering(true);
+
+      switch (type) {
+        case 'due_date':
+        case 'created_datetime':
+          response = await callAuthAPI({ url: `/task?sort_by=${type}&sortBy=${sortBy}`, method: 'GET' });
+          setSortBy(sortBy === 'asc' ? 'desc' : 'asc');
+          break;
+        case 'status':
+          response = await callAuthAPI({ url: `/task?status=${statusFilterType}`, method: 'GET' });
+          setStatusFilterType(statusFilterType === 'incompleted' ? 'completed' : 'incompleted');
+          break;
+      
+        default:
+          break;
+     
+        }
+        setTodos(response.data?.tasks);
+     
+        setIsFiltering(false);
+  }
   };
 
   return (
@@ -99,8 +135,24 @@ const TodoList = () => {
               <TableCell>S.N.</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Description</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Due Date</TableCell>
+              <TableCell>Status
+
+            <IconButton onClick={()=>handleSort('status')} aria-label="sort" size="small">
+            <AlignVerticalTopIcon fontSize="inherit" />
+          </IconButton>
+
+              </TableCell>
+              <TableCell>Due Date 
+              <IconButton onClick={()=>handleSort('due_date')} aria-label="sort" size="small">
+            <AlignVerticalTopIcon fontSize="inherit" />
+          </IconButton>
+              </TableCell>
+              <TableCell>Created At
+              <IconButton onClick={()=>handleSort('created_datetime')} aria-label="sort" size="small">
+            <AlignVerticalTopIcon fontSize="inherit" />
+          </IconButton>
+
+                </TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -111,9 +163,11 @@ const TodoList = () => {
                 <TableCell>{todo.title}</TableCell>
                 <TableCell>{todo.description}</TableCell>
                 <TableCell>{todo.status}</TableCell>
+
                 <TableCell>
                   {new Date(todo.due_date).toLocaleDateString()}
                 </TableCell>
+                <TableCell>{new Date(todo.created_datetime).toLocaleString()}</TableCell>
                 <TableCell>
                   <Button
                     variant="outlined"
@@ -180,6 +234,18 @@ const TodoList = () => {
                   shrink: true,
                 }}
               />
+              <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={selectedTodo.status}
+                  onChange={handleEditChange}
+                  label="Status"
+                  name="status"
+                >
+                  <MenuItem value="completed">Completed</MenuItem>
+                  <MenuItem value="incompleted">Incomplete</MenuItem>
+                </Select>
+              </FormControl>
             </>
           )}
         </DialogContent>
@@ -191,8 +257,8 @@ const TodoList = () => {
             Save
           </Button>
         </DialogActions>
-      </Dialog>
-      
+        </Dialog>
+
       <AddTodoDialog open={openCreate} onClose={handleCloseCreate} />
       <CustomAlert message={deleteSuccessMessage} isError={false} handleClose={()=>{setDeleteSuccessMessage(null)}} />
 
