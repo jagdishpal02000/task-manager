@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
-import moment from 'moment';
-import { TodoContext } from '../../context/TodoContext';
-import useCallAPI from '../../hooks/useCallAPI';
+import React, { useContext, useEffect, useState } from "react";
+import moment from "moment";
+import { TodoContext } from "../../context/TodoContext";
+import useCallAPI from "../../hooks/useCallAPI";
 import {
-  Container,
   Typography,
   Button,
   Table,
@@ -23,27 +22,31 @@ import {
   InputLabel,
   Select,
   MenuItem,
-} from '@mui/material';
-import AddTodoDialog from './AddTodoDialog';
-import CustomAlert from '../Layout/CustomAlert';
+} from "@mui/material";
+import AddTodoDialog from "./AddTodoDialog";
+import CustomAlert from "../Layout/CustomAlert";
 
-import IconButton from '@mui/material/IconButton';
-import AlignVerticalTopIcon from '@mui/icons-material/AlignVerticalTop';
-
+import IconButton from "@mui/material/IconButton";
+import AlignVerticalTopIcon from "@mui/icons-material/AlignVerticalTop";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WatchLaterIcon from '@mui/icons-material/WatchLater';
 const TodoList = () => {
-  const { todos, setTodos,updateTodo,deleteTodo } = useContext(TodoContext);
+  const { todos, setTodos, updateTodo, deleteTodo } = useContext(TodoContext);
   const { callAuthAPI } = useCallAPI();
   const [open, setOpen] = useState(false);
   const [selectedTodo, setSelectedTodo] = useState(null);
   const [openCreate, setOpenCreate] = useState(false);
   const [deleteSuccessMessage, setDeleteSuccessMessage] = useState(null);
-  const [sortBy, setSortBy] = useState('asc');
+  const [sortBy, setSortBy] = useState("asc");
   const [isFiltering, setIsFiltering] = useState(false);
-  const [statusFilterType, setStatusFilterType] =useState('all');
+  const [statusFilterType, setStatusFilterType] = useState("all");
+  // const [alignment, setAlignment] = useState("left");
 
   useEffect(() => {
     const fetchTodos = async () => {
-      const response = await callAuthAPI({ url: '/task', method: 'GET' });
+      const response = await callAuthAPI({ url: "/task", method: "GET" });
       console.log(response.data);
       setTodos(response.data?.tasks);
     };
@@ -61,7 +64,6 @@ const TodoList = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedTodo(null);
-
   };
 
   const handleEditChange = (e) => {
@@ -81,59 +83,69 @@ const TodoList = () => {
   };
 
   const handleSave = async () => {
-    updateTodo(selectedTodo.id,selectedTodo)
-      handleClose();
+    updateTodo(selectedTodo.id, selectedTodo);
+    handleClose();
   };
 
   const handleDelete = async (todo) => {
     deleteTodo(todo);
-    setDeleteSuccessMessage('Task Deleted Successfully');
+    setDeleteSuccessMessage("Task Deleted Successfully");
   };
 
-
   const handleSort = async (type) => {
-    if(!isFiltering){
+    if (!isFiltering) {
       setIsFiltering(true);
 
-      const response = await callAuthAPI({ url: `/task?sort_by=${type}&sort_type=${sortBy}`, method: 'GET' });
-      setSortBy(sortBy === 'asc' ? 'desc' : 'asc');
-      
+      const response = await callAuthAPI({
+        url: `/task?sort_by=${type}&sort_type=${sortBy}`,
+        method: "GET",
+      });
+      setSortBy(sortBy === "asc" ? "desc" : "asc");
+
       setTodos(response.data?.tasks);
-    
+
       setIsFiltering(false);
-  }
+    }
   };
 
   const handleStatusFilter = async (e) => {
     const { value } = e.target;
-    let placeholder ;
-    if(!isFiltering){
-      if(value !== "all"){
-        placeholder = 'status='+value;
-      } 
-      const  response = await callAuthAPI({ url: `/task?${placeholder}`, method: 'GET' });
+    let placeholder;
+    if (!isFiltering) {
+      if (value !== "all") {
+        placeholder = "status=" + value;
+      }
+      const response = await callAuthAPI({
+        url: `/task?${placeholder}`,
+        method: "GET",
+      });
       setTodos(response.data?.tasks);
       setIsFiltering(false);
       setStatusFilterType(value);
     }
   };
 
+  // const handleAlignment = (event, newAlignment) => {
+  //   if (newAlignment !== null) {
+  //     // setAlignment(newAlignment);
+  //   }
+  // };
+
   return (
-    <Container  maxWidth="xl"  sx={{ width:'100%',marginTop: '80px' }}>
+    <div style={{ marginLeft: "-200px" }}>
       <Typography variant="h4" component="h1" gutterBottom>
         Tasks List
       </Typography>
       <Button
         variant="contained"
         color="primary"
-       onClick={handleClickOpenCreate}
-        
-        sx={{ marginBottom: '20px' }}
+        onClick={handleClickOpenCreate}
+        sx={{ marginBottom: "20px" }}
       >
         Add Task
       </Button>
-      <TableContainer component={Paper} sx={{ minWidth: 850 }}  >
-        <Table >
+      <TableContainer component={Paper} sx={{ minWidth: 1200 }}>
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>S.N.</TableCell>
@@ -141,66 +153,104 @@ const TodoList = () => {
               <TableCell>Description</TableCell>
               <TableCell>
                 Status
-              <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
-              <Select
-                  value={statusFilterType}
-                  onChange={handleStatusFilter}
-                  label="Status"
-                  name="status"
+                <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
+                  <Select
+                    value={statusFilterType}
+                    onChange={handleStatusFilter}
+                    label="Status"
+                    name="status"
+                  >
+                    <MenuItem value="all">All</MenuItem>
+                    <MenuItem value="completed">Completed</MenuItem>
+                    <MenuItem value="incompleted">Incomplete</MenuItem>
+                  </Select>
+                </FormControl>
+                {/* <IconButton onClick={()=>handleSort('status')} aria-label="sort" size="small"> */}
+                {/* <CheckCircleIcon fontSize="inherit" /> */}
+                {/* </IconButton> */}
+              </TableCell>
+              <TableCell>
+                Due Date
+                <IconButton
+                  onClick={() => handleSort("due_date")}
+                  aria-label="sort"
+                  size="small"
                 >
-                  <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="completed">Completed</MenuItem>
-                  <MenuItem value="incompleted">Incomplete</MenuItem>
-                </Select>
-            </FormControl>
-            {/* <IconButton onClick={()=>handleSort('status')} aria-label="sort" size="small"> */}
-            {/* <AlignVerticalTopIcon fontSize="inherit" /> */}
-          {/* </IconButton> */}
-
+                  <AlignVerticalTopIcon fontSize="inherit" />
+                </IconButton>
               </TableCell>
-              <TableCell>Due Date 
-              <IconButton onClick={()=>handleSort('due_date')} aria-label="sort" size="small">
-            <AlignVerticalTopIcon fontSize="inherit" />
-          </IconButton>
+              <TableCell>
+                Created At
+                <IconButton
+                  onClick={() => handleSort("created_datetime")}
+                  aria-label="sort"
+                  size="small"
+                >
+                  <AlignVerticalTopIcon fontSize="inherit" />
+                </IconButton>
               </TableCell>
-              <TableCell>Created At
-              <IconButton onClick={()=>handleSort('created_datetime')} aria-label="sort" size="small">
-            <AlignVerticalTopIcon fontSize="inherit" />
-          </IconButton>
-
-                </TableCell>
               <TableCell>Actions</TableCell>
+              <TableCell>Complete/Incomlete</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {todos.map((todo,i) => (
+            {todos.map((todo, i) => (
               <TableRow key={todo.id}>
-                <TableCell>{i+1}</TableCell>
+                <TableCell>{i + 1}</TableCell>
                 <TableCell>{todo.title}</TableCell>
                 <TableCell>{todo.description}</TableCell>
                 <TableCell>{todo.status}</TableCell>
 
                 <TableCell>
-                {moment(new Date(todo.due_date)).format('MMMM Do YYYY')}
+                  {moment(new Date(todo.due_date)).format("MMMM Do YYYY")}
                 </TableCell>
-                <TableCell>{moment(new Date(todo.created_datetime)).format('MMMM Do YYYY, h:mm:ss a')}</TableCell>
+                <TableCell>
+                  {moment(new Date(todo.created_datetime)).format(
+                    "MMMM Do YYYY, h:mm:ss a"
+                  )}
+                </TableCell>
                 <TableCell>
                   <Button
                     variant="outlined"
                     color="primary"
                     onClick={() => handleClickOpen(todo)}
-                    sx={{ marginRight: '10px' }}
+                    sx={{ marginRight: "10px" }}
                   >
                     Edit
                   </Button>
                   <Button
                     variant="outlined"
                     color="secondary"
-                    onClick={()=>handleDelete(todo)}
+                    onClick={() => handleDelete(todo)}
                     // Add your delete handler here
                   >
                     Delete
                   </Button>
+                </TableCell>
+                <TableCell>
+                  <ToggleButtonGroup
+                    value={todo.status === 'incompleted' ? 'right' : 'left'}
+                    exclusive
+                    // onChange={handleAlignment}
+                    aria-label="text alignment"
+                  >
+                    <ToggleButton
+                      value="left"
+                      aria-label="left aligned"
+                    >
+                <CheckCircleIcon   size="small" />
+
+
+                    </ToggleButton>
+
+                    <ToggleButton
+                      value="right"
+                      aria-label="right aligned"
+                    >
+                          <WatchLaterIcon   size="small" />
+
+                </ToggleButton>
+                  </ToggleButtonGroup>
                 </TableCell>
               </TableRow>
             ))}
@@ -243,7 +293,9 @@ const TodoList = () => {
                 type="date"
                 fullWidth
                 variant="outlined"
-                value={moment(new Date(selectedTodo.due_date)).format('YYYY-MM-DD')}
+                value={moment(new Date(selectedTodo.due_date)).format(
+                  "YYYY-MM-DD"
+                )}
                 onChange={handleEditChange}
                 InputLabelProps={{
                   shrink: true,
@@ -272,12 +324,17 @@ const TodoList = () => {
             Save
           </Button>
         </DialogActions>
-        </Dialog>
+      </Dialog>
 
       <AddTodoDialog open={openCreate} onClose={handleCloseCreate} />
-      <CustomAlert message={deleteSuccessMessage} isError={false} handleClose={()=>{setDeleteSuccessMessage(null)}} />
-
-    </Container>
+      <CustomAlert
+        message={deleteSuccessMessage}
+        isError={false}
+        handleClose={() => {
+          setDeleteSuccessMessage(null);
+        }}
+      />
+    </div>
   );
 };
 

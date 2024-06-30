@@ -27,7 +27,6 @@ const App = () => {
         {isAuthenticated && (
           <>
             <Route path="/todos" element={<TodoList />} />
-            {/* <Route path="/add-todo" element={<AddTodo />} /> */}
           </>
         )}
         <Route path="*" element={<Navigate to="/login" />} />
