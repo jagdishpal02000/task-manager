@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { Container, TextField, Button, Box, Typography, Paper, Snackbar, Alert } from '@mui/material';
@@ -7,8 +7,10 @@ import axios from 'axios';
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
-  const { login } = useContext(AuthContext);
+  const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  const { login } = useContext(AuthContext);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,6 +34,12 @@ const Login = () => {
   const handleClose = () => {
     setError(null);
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/todos');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <Container component="main" maxWidth="xs">
