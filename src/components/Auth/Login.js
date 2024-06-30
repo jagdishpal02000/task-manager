@@ -1,8 +1,9 @@
 import React, { useState, useContext,useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link  } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
-import { Container, TextField, Button, Box, Typography, Paper, Snackbar, Alert } from '@mui/material';
+import { Container, TextField, Button, Box, Typography, Paper } from '@mui/material';
 import axios from 'axios';
+import CustomAlert from '../Layout/CustomAlert';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -22,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     const resp = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, formData);
     const refreshToken = resp.data.refresh_token;
-    login(refreshToken);
+    login(refreshToken,resp.data.name);
     navigate('/todos');
     
   } catch (error) {
@@ -80,11 +81,21 @@ const Login = () => {
           </Button>
         </Box>
       </Paper>
-      <Snackbar open={error} autoHideDuration={6000} onClose={handleClose}   anchorOrigin={{ vertical: 'top', horizontal: 'center' }} >
-        <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+      {/* <Snackbar open={error} autoHideDuration={6000} onClose={handleClose}   anchorOrigin={{ vertical: 'top', horizontal: 'center' }} >
+        <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
           {error}
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
+      <CustomAlert message={error} isError={true} handleClose={handleClose} />
+      <Button
+        component={Link}
+        to="/signup"
+        fullWidth
+        variant="outlined"
+        sx={{ mt: 2 }}
+      >
+        Don't have an account? Sign Up
+      </Button>
     </Container>
   );
 };

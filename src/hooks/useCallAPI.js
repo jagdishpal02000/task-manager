@@ -41,7 +41,7 @@ const useCallAPI = () => {
                         currentAccessToken=await getAccessToken({setAccessToken,refreshToken,setRefreshToken,setIsAuthenticated});
                     }else{
                         currentAccessToken=accessToken;
-                    }
+                    } 
                 } catch (error) {
                     currentAccessToken = await getAccessToken({refreshToken,setAccessToken,setRefreshToken,setIsAuthenticated});
                 }

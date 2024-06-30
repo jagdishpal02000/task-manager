@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 import { Container, TextField, Button, Typography, Paper, Box } from '@mui/material';
@@ -72,6 +72,15 @@ const Signup = () => {
             </Box>
           </form>
         </Paper>
+        <Button
+          component={Link}
+          to="/login"
+          fullWidth
+          variant="outlined"
+          sx={{ mt: 2 }}
+        >
+        Already have an account? Login
+      </Button>
       </Box>
     </Container>
   );

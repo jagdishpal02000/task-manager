@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Signup from './components/Auth/Signup';
 import Login from './components/Auth/Login';
 import TodoList from './components/Todo/TodoList';
-import AddTodo from './components/Todo/AddTodo';
+// import AddTodo from './components/Todo/AddTodoDialog';
+import Header from './components/Layout/Header';
 import { AuthContext } from './context/AuthContext';
 import styled from 'styled-components';
 
@@ -18,6 +19,7 @@ const App = () => {
 
   return (
     <AppContainer>
+      {isAuthenticated && <Header />}
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/signup" element={<Signup />} />
@@ -25,7 +27,7 @@ const App = () => {
         {isAuthenticated && (
           <>
             <Route path="/todos" element={<TodoList />} />
-            <Route path="/add-todo" element={<AddTodo />} />
+            {/* <Route path="/add-todo" element={<AddTodo />} /> */}
           </>
         )}
         <Route path="*" element={<Navigate to="/login" />} />
