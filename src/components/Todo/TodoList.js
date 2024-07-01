@@ -125,11 +125,13 @@ const TodoList = () => {
     }
   };
 
-  // const handleAlignment = (event, newAlignment) => {
-  //   if (newAlignment !== null) {
-  //     // setAlignment(newAlignment);
-  //   }
-  // };
+  const handlToggleStatus = (todo) => {
+    console.log(todo.status);
+    const updatedTodo = {...todo,status:todo.status === 'incompleted' ? 'completed' : 'incompleted'};
+    setTodos(todos.map(todo => todo.id === updatedTodo.id ?  updatedTodo :  todo));
+    updateTodo(updatedTodo.id,updatedTodo);
+
+  };
 
   return (
     <div style={{ marginLeft: "-200px" }}>
@@ -231,7 +233,7 @@ const TodoList = () => {
                   <ToggleButtonGroup
                     value={todo.status === 'incompleted' ? 'right' : 'left'}
                     exclusive
-                    // onChange={handleAlignment}
+                    onChange={()=>handlToggleStatus(todo)}
                     aria-label="text alignment"
                   >
                     <ToggleButton
